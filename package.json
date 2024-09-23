@@ -1,0 +1,21 @@
+{
+  "name": "tp-13-generateur-de-donnees",
+  "version": "1.0.0",
+  "main": "main-data-generator.js",
+  "scripts": {
+    "start": "node main-data-generator.js",
+    "test": "node test-data-generator.js"
+  },
+  "author": "La YH Team",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "clone": "^2.1.2",
+    "date-format": "^4.0.14",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "ip": "^2.0.1",
+    "random": "^5.1.0"
+  }
+}

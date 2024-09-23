@@ -1,0 +1,66 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[letterpaper,top=0.7cm,bottom=1.5cm,left=2cm,right=2cm,marginparwidth=1.75cm]{geometry}
+
+\title{Rapport TP Générateur de données - Middleware}
+\author{Yassine Dergaoui}
+\date{September 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Le projet fourni présente un générateur de données conçu en Node.js, s'appuyant sur le framework Express pour créer un serveur web. Le but est de produire et de diffuser des données aléatoires à travers une API.
+
+\section{Composants du projet}
+
+\subsection{main-data-generator.js}
+C'est le point d'entrée principal de l'application. Il configure un serveur web écoutant sur le port 3000 et répond aux requêtes HTTP en fournissant les 20 derniers nombres aléatoires d'un tableau inversé. Les données sont ensuite rendues via un modèle EJS.
+
+\subsection{Dépendances}
+On utilise \textbf{Express} comme serveur web, complété par des outils tels qu'\textbf{ip} pour obtenir des informations sur les clients, \textbf{clone} pour créer des copies d'objets en mémoire, \textbf{EJS} pour générer des interfaces utilisateur dynamiques à partir de données, et \textbf{Axios} pour communiquer avec d'autres services via des requêtes HTTP.
+
+\subsection{test-data-generator.js}
+Ce fichier présente plusieurs opérations illustrant l'utilisation correcte du fichier principal (\textit{main-data-generator.js}).
+
+\begin{itemize}
+    \item \textbf{\{"MessageType": "Setting"\}} : Définit les options relatifs à la génération des nombres, à l'aide d'un objet "DataGeneration".
+    \item \textbf{\{"MessageType": "Command", "NodeCommand": "Start"\}} : Démarre la génération des nombres.
+    \item \textbf{\{"MessageType": "Command", "NodeCommand": "Fetch-Data"\}} : Récupère les données générées.
+    \item \textbf{\{"MessageType": "Command", "NodeCommand": "Stop"\}} : Arrête la génération des nombres.
+    \item \textbf{\{"MessageType": "Command", "NodeCommand": "DeleteAllData"\}} : Supprime toutes les données générées.
+\end{itemize}
+
+\subsection{web-page-data-generator.html}
+Ce fichier représente un exemple de page web qui afficherait les résultats des données générées.
+
+\subsection{web-page-data-generator.ejs}
+Ce fichier est un template EJS qui sert à générer dynamiquement une page web similaire à \textit{web-page-data-generator.html}. Il utilise une boucle \texttt{foreach} pour itérer sur les données passées depuis le fichier \textit{main-data-generator.js}.
+
+
+\section{Approche utilisée}
+
+Puisque la package ``random`` était importé mais utilisé nulle part, j'ai compris que je dois l'utiliser pour la génération.
+Selon les docs du package (https://www.npmjs.com/package/random), il est possible de générer des nombres aléatoires selon une distribution normale ou uniforme.
+Dans le fichier \textit{test-data-generator.js}, plus précisément dans la partie \textit{Setting}, il y avait un paramètre \textit{DistributionType} qui peut prendre les valeurs \textit{Normal} ou \textit{Uniform}.
+
+Aussi, \textit{random.normal()} et \textit{random.uniform()} retournent une fonction lambda plutôt que le nombre aléatoire directement. Cela signifie que pour générer un nombre aléatoire, il fallait donc l'affecter directement à une variable et appeler cette derniere comme une fonction:
+\begin{verbatim}
+const random = new (require('random').Random)()
+funcDataGenerator = random.normal(mu, sigma)
+// et non pas "funcDataGenerator = (() => return random.normal(mu, sigma))"
+
+const x1 = funcDataGenerator()
+\end{verbatim}
+
+Selon \textit{test-data-generator.js}, on recupere les valeurs de \textit{mu} et \textit{sigma} pour la distribution normale, et \textit{min} et \textit{max} pour la distribution uniforme, depuis l'objet \textit{DataGeneration} passé en body de la requête HTTP.
+Le parametre \textit{Interval} est utilisé pour définir l'intervalle de temps entre chaque génération de nombre aléatoire, donc je l'ai recupéré aussi en le rendant une variable globale pour pouvoir l'utiliser dans le case d'une commande \textit{Command:Start}.
+Initiallement, le timerDataGenerator était null mais la ligne \textit{clearInterval(timerDataGenerator)} était appelée préalablement. Cela m'a confirmé que le timerDataGenerator doit être utilisé par la fonction \textit{setInterval()}, avec une intervalle equivalente à la variable globale \textit{Interval}.
+
+Pour la commande \textit{Command:DeleteAllData}, j'ai simplement vidé la collection \textit{arrRandomNumbers} ou les nombres générés sont stockés.
+Pour la commande \textit{Command:Stop}, j'ai simplement arrêté le timerDataGenerator en utilisant la fonction \textit{clearInterval()}.
+
+\end{document}
