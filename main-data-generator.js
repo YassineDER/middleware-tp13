@@ -30,6 +30,7 @@ let timerDataGenerator = null
 let arrRandomNumbers = []
 let funcDataGenerator = null
 let jsonSetting = null
+let interval // glabal variable to store the interval of the generator
 
 app.get('/', (req, res) => {
     let x1
@@ -49,7 +50,6 @@ app.get('/', (req, res) => {
 app.post('/json', (req, res) => {
     let ans = ""
     let x1, x2, x3
-    let interval // glabal variable to store the interval of the generator
 
     switch (req.body['MessageType']) {
         case 'Setting':
@@ -86,7 +86,7 @@ app.post('/json', (req, res) => {
             switch (req.body['NodeCommand']) {
                 case 'Start':
                     clearInterval(timerDataGenerator)
-                    // The presence of Interval means that it must be used when the generator is started
+                    // The presence of Interval in the test file, precisely in the DataGenerator body, means that it must be used when the generator is started
                     timerDataGenerator = setInterval(() => {
                         x1 = funcDataGenerator()
                         x1 = Math.round(x1 * 10) / 10
@@ -126,8 +126,6 @@ app.post('/json', (req, res) => {
 
     res.json({ 'Message': ans })
 })
-
-
 
 
 app.listen(ipPort, console.log(`Listening to ${ipAddress}:${ipPort} !!!`))
